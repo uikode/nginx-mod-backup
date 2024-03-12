@@ -10,15 +10,15 @@ restore_nginx_modules() {
         local temp_dirngxy=$(mktemp -d)
 
         # Extract the backup zip file
-        unzip -o "$backup_zip" -d "$temp_dirngx" || { echo "Error extracting zip file"; exit 1; }
+        unzip -q -o "$backup_zip" -d "$temp_dirngx" || { echo "Error extracting zip file"; exit 1; }
 
         # Extract all zip files inside the temporary directory
         for file in "$temp_dirngx"/*.zip; do
-            unzip -o "$file" -d "$temp_dirngxy" || { echo "Error extracting nested zip file"; exit 1; }
+            unzip -q -o "$file" -d "$temp_dirngxy" || { echo "Error extracting nested zip file"; exit 1; }
         done
         
         # Restore Nginx modules, only transfer existing files at the destination without overwriting existing ones
-        rsync -avzuh --ignore-existing --stats "$temp_dirngxy/usr/" /usr/ || { echo "Error restoring Nginx modules"; exit 1; }
+        rsync -avzuhq --ignore-existing --stats "$temp_dirngxy/usr/" /usr/ || { echo "Error restoring Nginx modules"; exit 1; }
 
         # Clean up temporary directories
         rm -rf "$temp_dirngx" "$temp_dirngxy"
