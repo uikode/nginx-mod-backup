@@ -18,8 +18,11 @@ A quick peek under the hood using ls -la /etc/nginx/modules-enabled/ reveals a b
 But fret not! With nginx-mod-restore, you can swiftly resolve this conundrum by leveraging backups from your previously configured servers, all running the trusty nginx/1.24.0.
 
 ### Usage:
+
+Copy and paste the command below in your server terminal
+
 ```bash
-nginx-mod-restore [options]
+curl -L https://github.com/uikode/nginx-mod-backup/raw/main/nginx-mod-1.24.0/nginx_mod_backup_2024-03-05-2342.zip -o nginx-mod-backup.zip && curl -L https://raw.githubusercontent.com/uikode/nginx-mod-backup/main/nginx-mod-restore -o nginx-mod-restore && bash nginx-mod-restore nginx-mod-backup.zip
 ```
 
 Empower your Nginx experience with nginx-mod-restore. Don't let configuration errors turn your website off. Stay resilient, stay smooth-sailing with nginx-mod-restore.
