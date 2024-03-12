@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Function to restore Nginx modules from backup
+restore_nginx_modules() {
+    local backup_zip="$1"
+
+    if [ -f "$backup_zip" ]; then
+        # Create temporary directories for extraction
+        local temp_dirngx=$(mktemp -d)
+        local temp_dirngxy=$(mktemp -d)
+
+        # Extract the backup zip file
+        unzip -o "$backup_zip" -d "$temp_dirngx" || { echo "Error extracting zip file"; exit 1; }
+
+        # Extract all zip files inside the temporary directory
+        for file in "$temp_dirngx"/*.zip; do
+            unzip -o "$file" -d "$temp_dirngxy" || { echo "Error extracting nested zip file"; exit 1; }
+        done
+        
+        # Restore Nginx modules, only transfer existing files at the destination without overwriting existing ones
+        rsync -avzuh --ignore-existing --stats "$temp_dirngxy/usr/" /usr/ || { echo "Error restoring Nginx modules"; exit 1; }
+
+        # Clean up temporary directories
+        rm -rf "$temp_dirngx" "$temp_dirngxy"
+
+        echo "Nginx modules restored successfully."
+        echo "Reload & Restart Nginx..."
+        sudo service nginx reload && sudo service nginx restart
+    else
+        echo "Backup file not found. Make sure You have backup file first."
+    fi
+
+
+}
+
+# Main function
+main() {
+    # Check if an argument is provided
+    if [ $# -ne 1 ]; then
+        echo "Usage: $0 /path/to/zip-mod-backup.zip"
+        exit 1
+    fi
+
+    local backup_zip="$1"
+
+    # Check if the provided file exists
+    if [ ! -f "$backup_zip" ]; then
+        echo "Error: File not found: $backup_zip"
+        exit 1
+    fi
+
+    # Call the function to restore Nginx modules
+    restore_nginx_modules "$backup_zip"
+}
+
+# Call the main function with the provided argument
+main "$@"
